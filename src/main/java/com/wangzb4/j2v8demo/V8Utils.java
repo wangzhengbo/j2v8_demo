@@ -3,8 +3,7 @@ package com.wangzb4.j2v8demo;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import org.apache.commons.io.IOUtils;
-
+import com.eclipsesource.v8.Releasable;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 
@@ -19,8 +18,22 @@ public final class V8Utils {
         registerConsole(v8);
     }
 
+    public static void release() {
+        v8.release();
+    }
+
+    public static void release(Object object) {
+        if (object instanceof Releasable) {
+            ((Releasable) object).release();
+        }
+    }
+
+    public static String getV8Version() {
+        return V8.getV8Version();
+    }
+
     public static void executeVoidScriptFile(String fileName) throws IOException {
-        v8.executeVoidScript(IOUtils.toString(V8Utils.class.getClassLoader().getResourceAsStream(fileName), "UTF-8"));
+        v8.executeVoidScript(FileUtil.getResourceFileContent(fileName));
     }
 
     protected static void registerConsole(V8 v8) {
@@ -38,7 +51,6 @@ public final class V8Utils {
             System.out.println(m.getName());
             if ("test".equals(m.getName())) {
                 System.out.println(m.getParameters()[0].getType());
-                // Object[].class
             }
         }
     }
